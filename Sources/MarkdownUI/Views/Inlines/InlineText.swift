@@ -17,6 +17,38 @@ struct InlineText: View {
 
   var body: some View {
     TextStyleAttributesReader { attributes in
+      #if os(macOS)
+      if self.inlines.containsLinks {
+        LinkAwareText(
+          attributedString: self.inlines.renderAttributedString(
+            baseURL: self.baseURL,
+            textStyles: .init(
+              code: self.theme.code,
+              emphasis: self.theme.emphasis,
+              strong: self.theme.strong,
+              strikethrough: self.theme.strikethrough,
+              link: self.theme.link
+            ),
+            softBreakMode: self.softBreakMode,
+            attributes: attributes
+          )
+        )
+      } else {
+        self.inlines.renderText(
+          baseURL: self.baseURL,
+          textStyles: .init(
+            code: self.theme.code,
+            emphasis: self.theme.emphasis,
+            strong: self.theme.strong,
+            strikethrough: self.theme.strikethrough,
+            link: self.theme.link
+          ),
+          images: self.inlineImages,
+          softBreakMode: self.softBreakMode,
+          attributes: attributes
+        )
+      }
+      #else
       self.inlines.renderText(
         baseURL: self.baseURL,
         textStyles: .init(
@@ -30,6 +62,7 @@ struct InlineText: View {
         softBreakMode: self.softBreakMode,
         attributes: attributes
       )
+      #endif
     }
     .task(id: self.inlines) {
       self.inlineImages = (try? await self.loadInlineImages()) ?? [:]

@@ -13,6 +13,22 @@ enum InlineNode: Hashable, Sendable {
   case image(source: String, children: [InlineNode])
 }
 
+extension Sequence where Element == InlineNode {
+  var containsLinks: Bool {
+    for node in self {
+      switch node {
+      case .link:
+        return true
+      case .emphasis(let children), .strong(let children), .strikethrough(let children):
+        if children.containsLinks { return true }
+      default:
+        continue
+      }
+    }
+    return false
+  }
+}
+
 extension InlineNode {
   var children: [InlineNode] {
     get {

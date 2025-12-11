@@ -1,5 +1,25 @@
 import Foundation
 
+extension Sequence where Element == InlineNode {
+  func renderAttributedString(
+    baseURL: URL?,
+    textStyles: InlineTextStyles,
+    softBreakMode: SoftBreak.Mode,
+    attributes: AttributeContainer
+  ) -> AttributedString {
+    var renderer = AttributedStringInlineRenderer(
+      baseURL: baseURL,
+      textStyles: textStyles,
+      softBreakMode: softBreakMode,
+      attributes: attributes
+    )
+    for node in self {
+      renderer.render(node)
+    }
+    return renderer.result.resolvingFonts()
+  }
+}
+
 extension InlineNode {
   func renderAttributedString(
     baseURL: URL?,
